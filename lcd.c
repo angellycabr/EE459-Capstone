@@ -27,27 +27,18 @@ void lcd_writedata(char *str, uint8_t line) {
     uint8_t control_byte = 0x40; // Data mode control byte, if needed
     
     // Set the cursor to the beginning of the specified line
-    uint8_t cursor_set[2] = {0xFE, command}; 
-    i2c_io(LCD_I2C_ADDRESS, cursor_set, 2, NULL, 0);
+    uint8_t cursor_set[3] = {0xFE, 0x45, 0x00}; //command
+    i2c_io(LCD_I2C_ADDRESS, cursor_set, 3, NULL, 0);
+	
+	//i2c_io(LCD_I2C_ADDRESS, "Hello, world", 12, NULL, 0);
     
     // Write each character of the string to the LCD
 	size_t i;
     for (i = 0; i < strlen(str); i++) {
-        uint8_t data[2] = {control_byte, (uint8_t)str[i]};
-        i2c_io(LCD_I2C_ADDRESS, data, 2, NULL, 0);
+        //uint8_t data[2] = {control_byte, (uint8_t)str[i]}; //Don't need a for loop
+		char data = str[i];
+        i2c_io(LCD_I2C_ADDRESS, &data, 1, NULL, 0);
     }
 }
 
-/**
-void lcd_clear(void) {
-    uint8 task[] = {CMD_PREFIX, 0x58}; // Clear string
-	i2c_io(LCD_I2C_ADDRESS_I2C_ADDRESS, task, 2, NULL, 0);
-}
-
-void lcd_write(char *data) {
-    while(*data) { 
-        i2c_io(LCD_I2C_ADDRESS, (uint8_t)*data++);
-    }
-}
-**/
 

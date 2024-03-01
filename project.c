@@ -7,24 +7,31 @@
 
 int main(void) {
 	
-	i2c_init(0x20); // Set appropriate baud rate divisor
+	i2c_init(0x66); // Set appropriate baud rate divisor 0x42, start with 0x48, initially 0x20
     _delay_ms(100); // Wait for sensor to power on
+	lcd_init();
 	
 	// Start measurement
-	dht20_start_measurement();
+	//lcd_init();
+	//_delay_ms(100);
+	//dht20_start_measurement();
 
     // Main loop
     while(1) {
         // Read temperature and humidity from DHT20
+		_delay_ms(100);
+		dht20_start_measurement();
+		
 		PORTC |= 1 << PC0;      // Set PC0 to a 1, LED on
 		
+		/**
 		// Read status byte and check if conversion is complete
 		uint8_t status = dht20_read_status();
 		
 		// Read data
 		uint8_t buffer[7];
-		dht20_read_data(buffer);
-		
+		//dht20_read_data(buffer);
+	
         // Assemble Celsius
 		int32_t temperature = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
 		float tf = (float)temperature;
@@ -45,7 +52,11 @@ int main(void) {
         // Display the strings on the LCD
 		lcd_writedata(tempString, 0); // Display temperature on line 0
         lcd_writedata(humString, 1);  // Display humidity on line 1
-        
+        **/
+		
+		lcd_writedata("Temperature:", 0);
+		//lcd_writedata("Humidity:", 1);
+		
         // Delay before next read 
         _delay_ms(1000); // Adjust delay as needed
 		PORTC &= ~(1 << PC0);   // Set PC0 to a 0, LED off
