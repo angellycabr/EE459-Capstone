@@ -4,9 +4,13 @@ Our AI-driven plant monitoring system is designed to enhance plant nurturing by 
 # Features
 • LCD (4x20)
   - Outputs sensor measurements
+
 • DTH20 (Temperature/humidity sensor)
+
 • TSL2591 (Light sensor)
+
 • Soil Moisture Sensor
+
 • ATMega328P
   - Connects the system
   - Outputs sensor data stored in a file
