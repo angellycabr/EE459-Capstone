@@ -1,5 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdio.h> // Include for sprintf
+#include <stdint.h> // Include for int32_t
 #include "i2c.h"
 #include "lcd.h"
 #include "DHT20.h"
@@ -12,26 +14,24 @@ int main(void) {
 	lcd_init();
 	
 	// Start measurement
-	//lcd_init();
-	//_delay_ms(100);
 	//dht20_start_measurement();
 
     // Main loop
     while(1) {
         // Read temperature and humidity from DHT20
-		_delay_ms(100);
+		lcd_init();
 		dht20_start_measurement();
+		_delay_ms(1000);
 		
 		PORTC |= 1 << PC0;      // Set PC0 to a 1, LED on
+		
+		uint8_t buffer[7];
+		dht20_read_data(buffer);
 		
 		/**
 		// Read status byte and check if conversion is complete
 		uint8_t status = dht20_read_status();
 		
-		// Read data
-		uint8_t buffer[7];
-		//dht20_read_data(buffer);
-	
         // Assemble Celsius
 		int32_t temperature = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
 		float tf = (float)temperature;
@@ -48,17 +48,21 @@ int main(void) {
 		
 		sprintf(tempString, "Temp: %.2fC", Celsius);
 		sprintf(humString, "Hum: %.2f%%", Humidity);
-        
-        // Display the strings on the LCD
-		lcd_writedata(tempString, 0); // Display temperature on line 0
-        lcd_writedata(humString, 1);  // Display humidity on line 1
         **/
+		char lcdBuffer[20]; 
+		int32_t temperature = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
+		float tf = (float)temperature;
+		float Celcius = (tf * 200) / 1048576 - 50;
 		
-		lcd_writedata("Temperature:", 0);
-		//lcd_writedata("Humidity:", 1);
+		int temp = (int)(Celcius * 10); //originally number
+		int ones = abs(temp / 10); 
+		int tenths = abs(temp % 10);
+		
+		sprintf(lcdBuffer, "Temp: %d.%dF", ones, tenths);	
+		lcd_writedata(lcdBuffer, 0);
 		
         // Delay before next read 
-        _delay_ms(1000); // Adjust delay as needed
+        _delay_ms(20000); // Adjust delay as needed
 		PORTC &= ~(1 << PC0);   // Set PC0 to a 0, LED off
     }
 }
