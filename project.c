@@ -31,25 +31,12 @@ int main(void) {
 		/**
 		// Read status byte and check if conversion is complete
 		uint8_t status = dht20_read_status();
-		
-        // Assemble Celsius
-		int32_t temperature = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
-		float tf = (float)temperature;
-		float Celsius = (tf * 200.0f) / 1048576.0f - 50.0f;
-
-		// Assemble Humidity
-		int32_t humidity = (buffer[1] << 12) | (buffer[2] << 4) | (buffer[3] >> 4);
-		float hf = (float)humidity;
-		float Humidity = (hf * 100.0f) / 1048576.0f;
-
-		// Convert temperature and humidity to strings
-		char tempString[20];
-        char humString[20];
-		
-		sprintf(tempString, "Temp: %.2fC", Celsius);
-		sprintf(humString, "Hum: %.2f%%", Humidity);
         **/
-		char lcdBuffer[20]; 
+		
+		char tempString[20]; 
+		char humString[20];
+		
+		// Assemble Temperature
 		int32_t temperature = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
 		float tf = (float)temperature;
 		float Celcius = (tf * 200) / 1048576 - 50;
@@ -58,8 +45,19 @@ int main(void) {
 		int ones = abs(temp / 10); 
 		int tenths = abs(temp % 10);
 		
-		sprintf(lcdBuffer, "Temp: %d.%dF", ones, tenths);	
-		lcd_writedata(lcdBuffer, 0);
+		sprintf(tempString, "Temp: %d.%dF", ones, tenths);	
+		lcd_writedata(tempString, 0);
+		
+		// Assemble Humidity
+		int32_t humidity = (buffer[1] << 12) | (buffer[2] << 4) | (buffer[3] >> 4);
+		float hf = (float)humidity;
+		float Humidity = (hf * 100) / 1048576;
+		
+		int percent = (int)(Humidity / 10);
+		int hum = abs(percent);
+		
+		sprintf(humString, "Humidity: %d%%", hum);
+		lcd_writedata(humString, 1);
 		
         // Delay before next read 
         _delay_ms(20000); // Adjust delay as needed
