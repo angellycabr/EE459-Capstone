@@ -9,12 +9,13 @@
 #include "TSL2591.h"
 #include "moisture.h"
 #include "uart.h"
-//#include <stddef.h>
 
-#define F_CPU 16000000UL // assuming a clock speed of 16 MHz
+#define F_CPU 7372800
 #define BAUD 9600
 #define MYUBRR F_CPU/16/BAUD-1
 
+#define ADC_CHANNEL_1 1 // PIN 24
+#define ADC_CHANNEL_2 2 // PIN 25
 
 int main(void) {
 	
@@ -23,8 +24,7 @@ int main(void) {
 	lcd_init();
 	ADC_init(); 
 	
-	// Start measurement
-	//dht20_start_measurement();
+	//DDRC |= (1<<PC3);  //Pin 26 to output 
 	
 	// Initialize UART
 	uart_init(MYUBRR);
@@ -33,18 +33,22 @@ int main(void) {
     while(1) {
         // Read temperature and humidity from DHT20
 		lcd_init();
+		
 		dht20_start_measurement();
 		_delay_ms(1000);
+		
+		//Pump
+		//PORTC |= (1<<PC3);
 		
 		// DTH20 light intensity reading
 		uint8_t buffer[7];
 		dht20_read_data(buffer);
-		
-		// TSL25911 light intensity reading
 
-		// Moisture reading
-		uint16_t adc_result;
-		adc_result = ADC_read();
+		// Moisture and Light reading
+		uint16_t adcResult1, adcResult2;
+		
+		adcResult1 = ADC_read(ADC_CHANNEL_1);
+		adcResult2 = ADC_read(ADC_CHANNEL_2);
 		
 		char tempString[20]; 
 		char humString[20];
@@ -75,29 +79,25 @@ int main(void) {
 		lcd_writedata(humString, 1);
 		
 		// Assemble Brightness
-		int light = 50;
+		int light = 100 - (adcResult2 / 10);
 		
 		sprintf(lightString, "Light: %d%%", light);
 		lcd_writedata(lightString, 2);
 		
 		// Assemble Moisture	
-		int moisture = (adc_result / 100);	
-		/**
-		float Es = 6.112 * exp((17.67 * Celcius) / (Celcius + 243.5)); // previously ones
-		float E = (Humidity) * Es;
-		float vapor = (216.7 * E) / (273.15 + Celcius); // previously ones
-		
-		int moisture = abs((int)(vapor * 10));
-		**/
+		int moisture = (adcResult1 / 10);	//adc_result
 		
 		sprintf(moistString, "Moisture: %d%%", moisture);	
 		lcd_writedata(moistString, 3);
 		
 		// Send sensor data across UART
-		uart_println(tempString);
-        uart_println(humString);
-        uart_println(lightString);
-        uart_println(moistString);
+		_delay_ms(1000);
+		uart_print("Hello, UART!");
+
+		//uart_print(tempString);
+        //uart_println(humString);
+        //uart_println(lightString);
+        //uart_println(moistString);
 
         // Delay before next read 
         _delay_ms(20000); // Adjust delay as needed
