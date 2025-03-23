@@ -15,3 +15,4 @@ Our AI-driven plant monitoring system is designed to enhance plant nurturing by 
   - Connects the system
   - Outputs sensor data stored in a file
 
+[Link to presentation](https://docs.google.com/presentation/d/1PXUxTM1k-A52hX0pVLlwrbkTVt2UJnyvwdPqTQYM5PQ/edit?usp=sharing)
